@@ -1,6 +1,5 @@
 import 'dotenv/config';
-//import { ObjectId } from 'mongodb';
-//const { MongoClient } = require('mongodb');
+import { MongoClient, ObjectId } from 'mongodb';
 
 export const getPaginationData = (query: any) => {
   const page = typeof query.PageNumber === 'string' ? +query.PageNumber : 1;
@@ -15,14 +14,14 @@ export type PostType = {
   title: string | null;
   shortDescription: string | null;
   content: string | null;
-  bloggerId: string | number;
+  bloggerId: string;
   bloggerName?: string | null;
 };
-// export type BloggerType = {
-//   id: string | number | ObjectId;
-//   name: string | null;
-//   youtubeUrl: string | null;
-// };
+export type BloggerType = {
+  id: string | number | ObjectId;
+  name: string | null;
+  youtubeUrl: string | null;
+};
 export type UserType = {
   id?: string;
   login: string;
@@ -59,26 +58,34 @@ export type QueryDataType = {
   searchNameTerm: string;
 };
 
-// const mongoUri =
-//   'mongodb+srv://3331668:999915748@cluster0.qdyw1.mongodb.net/app?retryWrites=true&w=majority';
-// export const client = new MongoClient(mongoUri);
-// export const bloggersCollection = client
-//   .db('bloggersDB')
-//   .collection('bloggers');
-// export const postsCollection = client.db('bloggersDB').collection('posts');
-// export const requestCollection = client.db('bloggersDB').collection('requests');
-// export const usersCollection = client.db('bloggersDB').collection('users');
-// export const commentsCollection = client
-//   .db('bloggersDB')
-//   .collection('comments');
-//
-// export async function runDb() {
-//   try {
-//     await client.connect();
-//     await client.db('bloggersDB').command({ ping: 1 });
-//     console.log('Connection complete');
-//   } catch (e) {
-//     await client.close();
-//     console.log('no connection');
-//   }
-// }
+const mongoUri =
+  'mongodb+srv://3331668:999915748@cluster0.qdyw1.mongodb.net/app?retryWrites=true&w=majority';
+export const client = new MongoClient(mongoUri);
+
+export class BloggersCollection {
+  bloggersCollection = new MongoClient(mongoUri)
+    .db('bloggersDB')
+    .collection('bloggers');
+}
+export class PostsCollection {
+  postsCollection = new MongoClient(mongoUri)
+    .db('bloggersDB')
+    .collection('posts');
+}
+
+export const requestCollection = client.db('bloggersDB').collection('requests');
+export const usersCollection = client.db('bloggersDB').collection('users');
+export const commentsCollection = client
+  .db('bloggersDB')
+  .collection('comments');
+
+export async function runDb() {
+  try {
+    await client.connect();
+    await client.db('bloggersDB').command({ ping: 1 });
+    console.log('Connection complete');
+  } catch (e) {
+    await client.close();
+    console.log('no connection');
+  }
+}
