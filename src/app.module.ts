@@ -9,10 +9,24 @@ import { BloggersRepository } from './bloggers/bloggers-db-repository';
 import { BloggersCollection, PostsCollection } from './db';
 import { CommentService } from './comments/comment.service';
 import { CommentsRepository } from './comments/comments-db-repository';
+import { AuthController } from './auth/auth.controller';
+import { UsersController } from './users/users.controller';
+import { BloggersController } from './bloggers/bloggers.controller';
+import { AuthService } from './auth/auth.service';
+import { UsersService } from './users/users.service';
+import { UsersRepository } from './users/user-db-repository';
+import { CommentsController } from './comments/comments.controller';
 
 @Module({
   imports: [],
-  controllers: [AppController, PostsController],
+  controllers: [
+    AppController,
+    PostsController,
+    AuthController,
+    UsersController,
+    BloggersController,
+    CommentsController,
+  ],
   providers: [
     AppService,
     PostsService,
@@ -23,6 +37,9 @@ import { CommentsRepository } from './comments/comments-db-repository';
     BloggersCollection,
     CommentService,
     CommentsRepository,
+    AuthService,
+    UsersService,
+    UsersRepository,
   ],
 })
 export class AppModule {}
