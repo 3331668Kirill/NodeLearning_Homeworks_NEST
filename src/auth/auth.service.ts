@@ -1,13 +1,18 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../users/user-db-repository';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(
+    private usersRepository: UsersRepository,
+    private jwtService: JwtService,
+  ) {}
 
   async checkCredentials(login: string, password: string) {
+    debugger;
     const user = await this.usersRepository.findUserByLogin(login);
     if (!user)
       return {
@@ -21,9 +26,11 @@ export class AuthService {
       user.passwordHash,
     );
     if (isHashesEquals) {
-      const token = jwt.sign({ userId: user.id }, 'topSecretKey', {
-        expiresIn: '30d',
-      });
+      //const token = jwt.sign({ userId: user.id }, 'topSecretKey', {
+      const token = this.jwtService.sign(
+        { userId: user.id },
+        { secret: 'topSecretKey' },
+      );
       return {
         resultCode: 0,
         data: {

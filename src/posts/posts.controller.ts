@@ -10,13 +10,18 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
+  UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { getPaginationData, PostType } from '../db';
 import { BloggersService } from '../bloggers/bloggers.service';
 import { CommentService } from '../comments/comment.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { AuthGuard } from '../middlewares/auth.guard';
+import { PaginationRules } from '../middlewares/paginationRules';
 
 interface TypeQueryGetPosts {
   page: number;
@@ -33,8 +38,8 @@ export class PostsController {
   ) {}
 
   @Get()
-  async getPosts(@Query() query: TypeQueryGetPosts) {
-    const { page, pageSize, searchNameTerm } = getPaginationData(query);
+  async getPosts(@Query(new PaginationRules()) query) {
+    const { page, pageSize, searchNameTerm } = query;
     return await this.postsService.getPosts(
       page,
       pageSize,
@@ -164,29 +169,34 @@ export class PostsController {
   }
 
   @Post(':postId/comments')
+  @UseGuards(AuthGuard)
   @HttpCode(201)
   async createCommentByPostId(
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
     @Param('postId') postId: string,
     @Query() query: TypeQueryGetPosts,
     @Body() body: PostType,
   ) {
     const paginationData = getPaginationData(query);
-    //const userLogin = user!.login
-    //const userId = user!.id
+    const userLogin = req.user!.login;
+    const userId = req.user!.id;
     const content = body.content;
     const post = await this.postsService.getPostById(postId);
-    const comments = await this.commentsService.createComment(
-      paginationData,
-      content,
-      postId,
-      '', //userLogin,
-      '', //userId!
-    );
-    if (!post) {
-      res.status(404);
+    if (post) {
+      const comments = await this.commentsService.createComment(
+        paginationData,
+        content,
+        postId,
+        userLogin,
+        userId,
+      );
+      return {
+        message: `comment created for post: ${post.title}`,
+        info: comments,
+      };
     }
-
-    return comments;
+    if (!post) {
+      throw new NotFoundException('post not found');
+    }
   }
 }

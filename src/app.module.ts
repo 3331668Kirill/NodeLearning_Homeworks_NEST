@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostsController } from './posts/posts.controller';
@@ -16,6 +16,8 @@ import { AuthService } from './auth/auth.service';
 import { UsersService } from './users/users.service';
 import { UsersRepository } from './users/user-db-repository';
 import { CommentsController } from './comments/comments.controller';
+import { authMiddleware } from './middlewares/auth-middleware';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [],
@@ -40,6 +42,17 @@ import { CommentsController } from './comments/comments.controller';
     AuthService,
     UsersService,
     UsersRepository,
+    JwtService,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer
+  //     .apply(authMiddleware)
+  //     .exclude({ path: 'comments/(.*)', method: RequestMethod.GET })
+  //     .forRoutes(CommentsController, {
+  //       path: 'posts',
+  //       method: RequestMethod.POST,
+  //     });
+  // }
+}
